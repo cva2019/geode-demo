@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Light Geode Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .traffic-container {
+            background: #333;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .light-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .light {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 10px;
+            transition: background-color 0.3s ease-in-out;
+            box-shadow: inset 0px 0px 10px rgba(0,0,0,0.5);
+        }
+        .green { background-color: grey; }
+        .yellow { background-color: grey; }
+        .red { background-color: grey; }
+        .green.active { background-color: green; }
+        .yellow.active { background-color: yellow; }
+        .red.active { background-color: red; }
+        .button-container {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        .green-btn { background-color: green; color: white; }
+        .yellow-btn { background-color: yellow; color: black; }
+        .red-btn { background-color: red; color: white; }
+        button:hover { opacity: 0.8; }
+    </style>
+    <script src="/cosmos.min.js"></script>
+</head>
+<body>
+    <h2>Traffic Light Geode Demo</h2>
+    <div class="traffic-container">
+        <div class="light-container">
+            <div id="redLight" class="light red"></div>
+            <div id="yellowLight" class="light yellow"></div>
+            <div id="greenLight" class="light green"></div>
+        </div>
+    </div>
+    <div class="button-container">
+        <button class="green-btn" onclick="setLight('green')">Green</button>
+        <button class="yellow-btn" onclick="setLight('yellow')">Yellow</button>
+        <button class="red-btn" onclick="setLight('red')">Red</button>
+    </div>
+
+    <script>
+        if (typeof CosmosClient === 'undefined') {
+            console.error("CosmosClient is not loaded. Check if cosmos.min.js is in the folder and loaded.");
+        } else {
+            console.log("CosmosClient loaded successfully.");
+        }
+
+        const endpoint = "";
+        const key = "";
+        const client = new CosmosClient({ endpoint, key });
+        const database = client.database("TrafficDB");
+        const container = database.container("Lights");
+
+        async function setLight(color) {
+            try {
+                const light = { id: "traffic1", state: color, timestamp: new Date().toISOString() };
+                await container.items.upsert(light);
+                updateLight();
+            } catch (error) {
+                console.error("Error in setLight:", error.message);
+            }
+        }
+
+        async function updateLight() {
+            try {
+                const { resources } = await container.items.readAll().fetchAll();
+                const light = resources.find(l => l.id === "traffic1");
+                document.querySelectorAll('.light').forEach(el => el.classList.remove('active'));
+                if (light) {
+                    document.getElementById(`${light.state}Light`).classList.add('active');
+                }
+            } catch (error) {
+                console.error("Error in updateLight:", error.message);
+            }
+        }
+
+        setInterval(updateLight, 1000);
+        updateLight();
+    </script>
+</body>
+</html>
