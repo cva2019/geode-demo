@@ -1,0 +1,20 @@
+{
+  "name": "trafficlightdemo",
+  "version": "1.0.0",
+  "main": "cosmos.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@azure/cosmos": "^3.17.3",
+    "http-proxy": "^1.18.1"
+  },
+  "devDependencies": {
+    "browser-resolve": "^2.0.0",
+    "esmify": "^2.1.1"
+  }
+}
